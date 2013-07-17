@@ -8,14 +8,16 @@ function getRandomYCorr(shapeSize){
 
 var stage = new Kinetic.Stage({
         container: 'container',
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: 800,
+        height: 500,
+        fill: '#7FFF00',
         listening: true
 });
       
 var layer = new Kinetic.Layer();
 
 var lastKeyPressed = null;
+var currentKey = null;
 
 var leftArrow = 37;
 var upArrow = 38; 
@@ -83,38 +85,44 @@ function growSnake(){
 	switch(lastKeyPressed){
 		case rightArrow:
 		{
-			var Xn = snakePoints[snakePoints.length-2];
-			var Yn = snakePoints[snakePoints.length-1];
-			var newX = Xn - snakeStroke;
-			snakePoints.push(newX, Yn, newX - snakeStroke, Yn);
-			console.log|("Right push");
+			//-= deltaX
+			snakePoints[0] -= snakeStroke + 15;
 			break;
 		}
 		case leftArrow:
 		{
-			//the old largest values
-			var X0 = snakePoints[0];
-			var Y0 = snakePoints[1];
-			var newX = X0 + snakeStroke;
-			snakePoints.unshift(newX, Y0, newX + snakeStroke, Y0);
-			console.log|("Left Unshift");
+			//+= deltaX
+			snakePoints[2] += snakeStroke + 15;
 			break;
 		}
 
 	}
-	snake.setPoints(snakePoints);
-	console.log(snakePoints);
 }
 
-function move(deltaX, deltaY){
-	var newLoc = snakePoints;
-	for(var index = 0; index < newLoc.length; index+=2){
-		//x
-		newLoc[index] += deltaX;
-		//y
-		newLoc[index+1] += deltaY;
+function move(key){
+	if(lastKeyPressed == null){
+		lastKeyPressed = currentKey;
 	}
-	snakePoints = newLoc;
+	//only change direction if the key isn't the same, and not the opposite key up vs down, left vs right
+	if(currentKey != lastKeyPressed && Math.abs(lastKeyPressed-currentKey) != 2){
+		//lets create a container to hold the turning point
+		var turns = new Array();
+		var turnPoint = null;
+
+		if(lastKeyPressed == leftArrow || currentKey == leftArrow) //from left, going up or down
+		{
+			turnPoint = {x: snakePoints[0], y: snakePoints[1], direction: currentKey};
+		}else if(lastKeyPressed == rightArrow || currentKey == rightArrow)
+		{
+			turnPoint = {x: snakePoints[2], y: snakePoints[3], direction: currentKey};
+		}
+
+		if(turnPoint != null){
+			turns.push(turnPoint);
+		}
+	}else{
+		
+	}
 	snake.setPoints(newLoc);
 	drawGame();
 }
@@ -125,26 +133,26 @@ function arrowKeyPressed(key)
 	{
 		case leftArrow:
 		{
-			lastKeyPressed = leftArrow;
-			move(-moveRate, 0);
+			currentKey = leftArrow;
+			move(currentKey);
 			break;	
 		}
 		case rightArrow:
 		{
-			lastKeyPressed = rightArrow;
-			move(moveRate, 0);
+			currentKey = rightArrow;
+			move(currentKey);
 			break;	
 		}
 		case upArrow:
 		{
-			lastKeyPressed = upArrow;
-			move(0, -moveRate);
+			currentKey = upArrow;
+			move(currentKey);
 			break;	
 		}
 		case downArrow:
 		{
-			lastKeyPressed = downArrow;
-			move(0, moveRate);
+			currentKey = downArrow;
+			move(currentKey);
 			break;	
 		}
 	}
@@ -163,9 +171,11 @@ function  snakeEats(snakeFood){ // a and b are your objects
 
    //to compute if snakeFood intersects the snake, we start the range at the largest pair (x1, y1) and the smallest pair (Xn-2, Yn-2)
    //these facts are possible because the head of the snake is always at the "front" or beginning of the array. A snake's length at Xn-2 and Yn-1 get ever closer to 0,0 as the snake eats and grows
-
-   if(snakeFood.getX() + snakeFood.getWidth() >= snakePoints[snakePoints.length-2] && snakeFood.getX() <= snakePoints[0] &&
-   	  snakeFood.getY() + snakeFood.getHeight() >= snakePoints[snakePoints.length-1] && snakeFood.getY() <= snakePoints[1])
+   var x1 = snakePoints[0];
+   var y1 = snakePoints[1];
+   var x2 = snakePoints[2];
+   var y2 = snakePoints[3];
+   if(snakeFood.intersects([x1, y1]) || snakeFood.intersects([(x2-x1)/2, (y2-y1)/2]) || snakeFood.intersects([x2, y2]))
    {
    		console.log("Collided!!");
    		food.setPosition(getRandomXCorr(foodSize), getRandomYCorr(foodSize));
@@ -176,9 +186,9 @@ function  snakeEats(snakeFood){ // a and b are your objects
 
 function timeStep()
 {
-	if(lastKeyPressed != null) //a key has been pressed
+	if(currentKey != null) //a key has been pressed
 	{
-		arrowKeyPressed(lastKeyPressed);
+		arrowKeyPressed(currentKey);
 		snakeEats(food);
 	}
 }
