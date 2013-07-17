@@ -1,3 +1,11 @@
+function getRandomXCorr(shapeSize){
+	return Math.floor(Math.random()*(stage.getWidth()-shapeSize));
+}
+
+function getRandomYCorr(shapeSize){
+	return Math.floor(Math.random()*(stage.getHeight()-shapeSize));
+}
+
 var stage = new Kinetic.Stage({
         container: 'container',
         width: window.innerWidth,
@@ -7,7 +15,7 @@ var stage = new Kinetic.Stage({
       
 var layer = new Kinetic.Layer();
 
-var lastKeyPressed;
+var lastKeyPressed = null;
 
 var leftArrow = 37;
 var upArrow = 38; 
@@ -17,7 +25,7 @@ var downArrow = 40;
 //shapes
 var snakePoints = new Array();
 
-var snakeStroke = 10;
+var snakeStroke = 22;
 
 //lets place the snake in the middle of the screen
 //snake x
@@ -29,8 +37,6 @@ snakePoints.push(stage.getHeight()/2);
 snakePoints.push(stage.getWidth()/2 + snakeStroke);
 //snake y2
 snakePoints.push(stage.getHeight()/2);
-
-console.log(snakePoints);
 
 var snake = new Kinetic.Line({
         points: snakePoints,
@@ -46,10 +52,12 @@ var snake = new Kinetic.Line({
         listening: true
       });
 
- var food = new Kinetic.Circle({
-        x: Math.floor(Math.random()*(stage.getWidth()-35)),
-        y: Math.floor(Math.random()*(stage.getHeight()-35)),
-        radius: 35,
+var foodSize = 35; 
+var food = new Kinetic.Rect({
+        x: getRandomXCorr(foodSize),
+        y: getRandomYCorr(foodSize),
+        width: foodSize,
+        height: foodSize,
         fill: 'yellow',
         strokeWidth: 4
       });
@@ -63,6 +71,41 @@ var moveRate = 7;
 // var s = 83;
 // var d = 68;
 
+function drawGame(){
+	layer.clear();
+	snake.draw();
+	food.draw();
+}
+
+function growSnake(){
+	
+	console.log("GROWING SNAKE: " + lastKeyPressed);
+	switch(lastKeyPressed){
+		case rightArrow:
+		{
+			var Xn = snakePoints[snakePoints.length-2];
+			var Yn = snakePoints[snakePoints.length-1];
+			var newX = Xn - snakeStroke;
+			snakePoints.push(newX, Yn, newX - snakeStroke, Yn);
+			console.log|("Right push");
+			break;
+		}
+		case leftArrow:
+		{
+			//the old largest values
+			var X0 = snakePoints[0];
+			var Y0 = snakePoints[1];
+			var newX = X0 + snakeStroke;
+			snakePoints.unshift(newX, Y0, newX + snakeStroke, Y0);
+			console.log|("Left Unshift");
+			break;
+		}
+
+	}
+	snake.setPoints(snakePoints);
+	console.log(snakePoints);
+}
+
 function move(deltaX, deltaY){
 	var newLoc = snakePoints;
 	for(var index = 0; index < newLoc.length; index+=2){
@@ -71,42 +114,35 @@ function move(deltaX, deltaY){
 		//y
 		newLoc[index+1] += deltaY;
 	}
+	snakePoints = newLoc;
 	snake.setPoints(newLoc);
-	layer.clear();
-	snake.draw();
-	food.draw();
+	drawGame();
 }
 
 function arrowKeyPressed(key)
 {
-	console.log(key);
-
 	switch(key)
 	{
 		case leftArrow:
 		{
-			console.log("left");
 			lastKeyPressed = leftArrow;
 			move(-moveRate, 0);
 			break;	
 		}
 		case rightArrow:
 		{
-			console.log("right");
 			lastKeyPressed = rightArrow;
 			move(moveRate, 0);
 			break;	
 		}
 		case upArrow:
 		{
-			console.log("up");
 			lastKeyPressed = upArrow;
 			move(0, -moveRate);
 			break;	
 		}
 		case downArrow:
 		{
-			console.log("down");
 			lastKeyPressed = downArrow;
 			move(0, moveRate);
 			break;	
@@ -118,12 +154,32 @@ function doKeyDown(e) {
 	arrowKeyPressed(e.keyCode);
 }
 
+function  snakeEats(snakeFood){ // a and b are your objects
+   //snakePoints[0] is X1 as well as thew largest X of the snake
+   //snakePoints[1] is Y1 as well as the largest Y of the snake
+
+   //snakePoints[n-2] is Xn as well as the smallest ||X of the snake
+   //snakePoints[n-1] is Yn, the last cell in the array, and the smallest Y of the snake
+
+   //to compute if snakeFood intersects the snake, we start the range at the largest pair (x1, y1) and the smallest pair (Xn-2, Yn-2)
+   //these facts are possible because the head of the snake is always at the "front" or beginning of the array. A snake's length at Xn-2 and Yn-1 get ever closer to 0,0 as the snake eats and grows
+
+   if(snakeFood.getX() + snakeFood.getWidth() >= snakePoints[snakePoints.length-2] && snakeFood.getX() <= snakePoints[0] &&
+   	  snakeFood.getY() + snakeFood.getHeight() >= snakePoints[snakePoints.length-1] && snakeFood.getY() <= snakePoints[1])
+   {
+   		console.log("Collided!!");
+   		food.setPosition(getRandomXCorr(foodSize), getRandomYCorr(foodSize));
+   		growSnake();
+   		drawGame();
+   }
+}
+
 function timeStep()
 {
-	console.log("Game Loop Running");
 	if(lastKeyPressed != null) //a key has been pressed
 	{
 		arrowKeyPressed(lastKeyPressed);
+		snakeEats(food);
 	}
 }
 
