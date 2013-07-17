@@ -46,6 +46,14 @@ var snake = new Kinetic.Line({
         listening: true
       });
 
+ var food = new Kinetic.Circle({
+        x: Math.floor(Math.random()*(stage.getWidth()-35)),
+        y: Math.floor(Math.random()*(stage.getHeight()-35)),
+        radius: 35,
+        fill: 'yellow',
+        strokeWidth: 4
+      });
+
 //move logic
 
 var moveRate = 7;
@@ -66,6 +74,7 @@ function move(deltaX, deltaY){
 	snake.setPoints(newLoc);
 	layer.clear();
 	snake.draw();
+	food.draw();
 }
 
 function arrowKeyPressed(key)
@@ -118,6 +127,7 @@ function timeStep()
 	}
 }
 
+layer.add(food);
 layer.add(snake);
 stage.add(layer);
 
