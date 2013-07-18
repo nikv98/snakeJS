@@ -99,31 +99,63 @@ function growSnake(){
 	}
 }
 
+var turns = new Array();
+
 function move(key){
 	if(lastKeyPressed == null){
 		lastKeyPressed = currentKey;
 	}
+	var delta = moveRate;
+	if(currentKey == leftArrow || currentKey == upArrow){
+		delta *= -1;
+	}
+
 	//only change direction if the key isn't the same, and not the opposite key up vs down, left vs right
 	if(currentKey != lastKeyPressed && Math.abs(lastKeyPressed-currentKey) != 2){
 		//lets create a container to hold the turning point
-		var turns = new Array();
-		var turnPoint = null;
+		var turnPoint = {x: 0, y: 0, direction: 0};
 
 		if(lastKeyPressed == leftArrow || currentKey == leftArrow) //from left, going up or down
 		{
-			turnPoint = {x: snakePoints[0], y: snakePoints[1], direction: currentKey};
+			turnPoint = {x: Number(snakePoints[0]), y: Number(snakePoints[1]), direction: currentKey};
 		}else if(lastKeyPressed == rightArrow || currentKey == rightArrow)
 		{
-			turnPoint = {x: snakePoints[2], y: snakePoints[3], direction: currentKey};
+			turnPoint = {x: Number(snakePoints[2]), y: Number(snakePoints[3]), direction:currentKey};
 		}
 
 		if(turnPoint != null){
 			turns.push(turnPoint);
+			console.log(turns);
 		}
-	}else{
-		
 	}
-	snake.setPoints(newLoc);
+
+
+	if(currentKey == leftArrow){
+		snakePoints[0] += delta;
+	}else if(currentKey == rightArrow){
+		snakePoints[2] += delta;
+	}else if(currentKey == upArrow){
+		snakePoints[1] += delta;
+	}else{
+		snakePoints[3] += delta;
+	}
+	var newLine = new Array();
+
+	newLine.push(snakePoints[0]);
+	newLine.push(snakePoints[1]);
+	
+	for(var turn in turns){
+		newLine.push(Number(turn.x));
+		newLine.push(Number(turn.y));
+	}
+
+	newLine.push(snakePoints[2]);
+	newLine.push(snakePoints[3]);
+
+	console.log(newLine);
+
+	lastKeyPressed = currentKey;
+	snake.setPoints(newLine);
 	drawGame();
 }
 
@@ -175,7 +207,7 @@ function  snakeEats(snakeFood){ // a and b are your objects
    var y1 = snakePoints[1];
    var x2 = snakePoints[2];
    var y2 = snakePoints[3];
-   if(snakeFood.intersects([x1, y1]) || snakeFood.intersects([(x2-x1)/2, (y2-y1)/2]) || snakeFood.intersects([x2, y2]))
+   if(snakeFood.intersects([x1, y1]) || snakeFood.intersects([x2, y2]))
    {
    		console.log("Collided!!");
    		food.setPosition(getRandomXCorr(foodSize), getRandomYCorr(foodSize));
