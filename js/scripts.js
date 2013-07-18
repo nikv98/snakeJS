@@ -35,11 +35,6 @@ snakePoints.push(stage.getWidth()/2);
 //snake y
 snakePoints.push(stage.getHeight()/2);
 
-//snake x2
-snakePoints.push(stage.getWidth()/2 + snakeStroke);
-//snake y2
-snakePoints.push(stage.getHeight()/2);
-
 var snake = new Kinetic.Line({
         points: snakePoints,
         stroke: 'red',
@@ -102,9 +97,67 @@ function growSnake(){
 var turns = new Array();
 
 function move(key){
-	var turnPoint = {"x": 0, "y":0, "direction":currentKey};
-	if(currentKey == leftArrow){
-		var delta = Math.abs(Math.sqrt(Math.pow(snakePoints[0]+delta - snakePoints[0], 2) + Math.pow(snakePoints[1]+delta - snakePoints[1], 2)));
+	//head is always at snakePoints[2] and snakePoints[3] respectivly
+	if(snakePoints.length == 2){
+		switch(key)
+		{
+			case leftArrow:
+			{
+				snakePoints.push(snakePoints[0] - moveRate);
+				snakePoints.push(snakePoints[1]);
+				break;	
+			}
+			case rightArrow:
+			{
+				snakePoints.push(snakePoints[0] + moveRate);
+				snakePoints.push(snakePoints[1]);
+				break;	
+			}
+			case upArrow:
+			{
+				snakePoints.push(snakePoints[0]);
+				snakePoints.push(snakePoints[1] - moveRate);
+				break;	
+			}
+			case downArrow:
+			{
+				snakePoints.push(snakePoints[0]);
+				snakePoints.push(snakePoints[1] + moveRate);
+				break;	
+			}
+		}
+		return;
+	}
+	var turnPoint = null;
+	var direction = 1;
+	var m = NaN;
+	switch(key){
+		case leftArrow:
+		{
+			m = (snakePoints[3]-snakePoints[1])/((snakePoints[2] - moveRate) - snakePoints[0]);
+			break;
+		}
+		case upArrow:
+		{
+			m = ((snakePoints[3] - moveRate)-snakePoints[1])/(snakePoints[2] - snakePoints[0]);
+			break;
+		}
+		case rightArrow:
+		{
+			m = (snakePoints[3]-snakePoints[1])/((snakePoints[2] + moveRate) - snakePoints[0]);
+			break;
+		}
+		case downArrow:
+		{
+			m = ((snakePoints[3] - moveRate)-snakePoints[1])/(snakePoints[2] - snakePoints[0]);
+			break;
+		}
+	}
+	console.log("m: " + m);
+	if(m != 0){
+		turnPoint = {"x": snakePoints[2], "y": snakePoints[3]};
+		turns.push(turnPoint);
+		console.log(turns);
 	}
 
 	var newLine = new Array();
@@ -114,19 +167,59 @@ function move(key){
 	
 	for(var index = 0; index < turns.length; index++){
 		var turn = turns[index];
-		if(turn.x == snakePoints[0] && turn.y == snakePoints[1] ||
-			turn.x == snakePoints[2] && turn.y == snakePoints[3]){
-			turns.splice(index, 1);
-		}else{
-			newLine.push(Number(turn.x));
-			newLine.push(Number(turn.y));
-		}
+		newLine.push(Number(turn.x));
+		newLine.push(Number(turn.y));
 	}
 
 	//lets have the tail follow the head
-
+	switch(key){
+		case leftArrow:
+		{
+			snakePoints[2] -= moveRate;
+			break;
+		}
+		case upArrow:
+		{
+			snakePoints[3] -= moveRate;
+			break;
+		}
+		case rightArrow:
+		{
+			snakePoints[2] += moveRate;
+			break;
+		}
+		case downArrow:
+		{
+			snakePoints[3] += moveRate;
+			break;
+		}
+	}
 	newLine.push(snakePoints[2]);
 	newLine.push(snakePoints[3]);
+
+	for(var index = newLine.length - 1; index >= 3; index-=2){
+		// var delta = Math.sqrt(Math.pow(newLine[index + 3] - newLine[index + 1], 2) + Math.pow(newLine[index + 2] - newLine[index], 2));
+		
+		// var deltaY = newLine[index] - newLine[index - 2];
+		// var deltaX = newLine[index -1] - newLine[index - 3];
+		// console.log("deltaX: " + deltaX);
+		// console.log("deltaY: " + deltaY);
+		// newLine[index] += deltaY;
+		// newLine[index-1] += deltaX;
+		// var nextY = newLine[index];
+		// var nextX = newLine[index - 1];
+		// if(nextX > newLine[index-3]){
+		// 	newLine[index-3] += moveRate;
+		// }else if(nextX < newLine[index-3]){
+		// 	newLine[index-3] -= moveRate;
+		// }
+
+		// if(nextY > newLine[index -2]){
+		// 	newLine[index -2] += moveRate;
+		// }else if(nextY < newLine[index -2]){
+		// 	newLine[index -2] -= moveRate;
+		// }
+	}
 
 	console.log(newLine);
 
