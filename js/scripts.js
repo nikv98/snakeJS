@@ -102,52 +102,28 @@ function growSnake(){
 var turns = new Array();
 
 function move(key){
-	if(lastKeyPressed == null){
-		lastKeyPressed = currentKey;
-	}
-	var delta = moveRate;
-	if(currentKey == leftArrow || currentKey == upArrow){
-		delta *= -1;
-	}
-
-	//only change direction if the key isn't the same, and not the opposite key up vs down, left vs right
-	if(currentKey != lastKeyPressed && Math.abs(lastKeyPressed-currentKey) != 2){
-		//lets create a container to hold the turning point
-		var turnPoint = {x: 0, y: 0, direction: 0};
-
-		if(lastKeyPressed == leftArrow || currentKey == leftArrow) //from left, going up or down
-		{
-			turnPoint = {x: Number(snakePoints[0]), y: Number(snakePoints[1]), direction: currentKey};
-		}else if(lastKeyPressed == rightArrow || currentKey == rightArrow)
-		{
-			turnPoint = {x: Number(snakePoints[2]), y: Number(snakePoints[3]), direction:currentKey};
-		}
-
-		if(turnPoint != null){
-			turns.push(turnPoint);
-			console.log(turns);
-		}
-	}
-
-
+	var turnPoint = {"x": 0, "y":0, "direction":currentKey};
 	if(currentKey == leftArrow){
-		snakePoints[0] += delta;
-	}else if(currentKey == rightArrow){
-		snakePoints[2] += delta;
-	}else if(currentKey == upArrow){
-		snakePoints[1] += delta;
-	}else{
-		snakePoints[3] += delta;
+		var delta = Math.abs(Math.sqrt(Math.pow(snakePoints[0]+delta - snakePoints[0], 2) + Math.pow(snakePoints[1]+delta - snakePoints[1], 2)));
 	}
+
 	var newLine = new Array();
 
 	newLine.push(snakePoints[0]);
 	newLine.push(snakePoints[1]);
 	
-	for(var turn in turns){
-		newLine.push(Number(turn.x));
-		newLine.push(Number(turn.y));
+	for(var index = 0; index < turns.length; index++){
+		var turn = turns[index];
+		if(turn.x == snakePoints[0] && turn.y == snakePoints[1] ||
+			turn.x == snakePoints[2] && turn.y == snakePoints[3]){
+			turns.splice(index, 1);
+		}else{
+			newLine.push(Number(turn.x));
+			newLine.push(Number(turn.y));
+		}
 	}
+
+	//lets have the tail follow the head
 
 	newLine.push(snakePoints[2]);
 	newLine.push(snakePoints[3]);
