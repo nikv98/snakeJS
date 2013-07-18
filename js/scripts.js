@@ -197,29 +197,30 @@ function move(key){
 	newLine.push(snakePoints[2]);
 	newLine.push(snakePoints[3]);
 
-	for(var index = newLine.length - 1; index >= 3; index-=2){
-		// var delta = Math.sqrt(Math.pow(newLine[index + 3] - newLine[index + 1], 2) + Math.pow(newLine[index + 2] - newLine[index], 2));
+	// for(var index = newLine.length - 1; index >= 3; index-=2){
+	// 	// var delta = Math.sqrt(Math.pow(newLine[index + 3] - newLine[index + 1], 2) + Math.pow(newLine[index + 2] - newLine[index], 2));
 		
-		// var deltaY = newLine[index] - newLine[index - 2];
-		// var deltaX = newLine[index -1] - newLine[index - 3];
-		// console.log("deltaX: " + deltaX);
-		// console.log("deltaY: " + deltaY);
-		// newLine[index] += deltaY;
-		// newLine[index-1] += deltaX;
-		// var nextY = newLine[index];
-		// var nextX = newLine[index - 1];
-		// if(nextX > newLine[index-3]){
-		// 	newLine[index-3] += moveRate;
-		// }else if(nextX < newLine[index-3]){
-		// 	newLine[index-3] -= moveRate;
-		// }
+	// 	// var deltaY = newLine[index] - newLine[index - 2];
+	// 	// var deltaX = newLine[index -1] - newLine[index - 3];
+	// 	// console.log("deltaX: " + deltaX);
+	// 	// console.log("deltaY: " + deltaY);
+	// 	// newLine[index] += deltaY;
+	// 	// newLine[index-1] += deltaX;
+	// 	// var nextY = newLine[index];
+	// 	// var nextX = newLine[index - 1];
+	// 	// if(nextX > newLine[index-3]){
+	// 	// 	newLine[index-3] += moveRate;
+	// 	// }else if(nextX < newLine[index-3]){
+	// 	// 	newLine[index-3] -= moveRate;
+	// 	// }
 
-		// if(nextY > newLine[index -2]){
-		// 	newLine[index -2] += moveRate;
-		// }else if(nextY < newLine[index -2]){
-		// 	newLine[index -2] -= moveRate;
-		// }
-	}
+	// 	// if(nextY > newLine[index -2]){
+	// 	// 	newLine[index -2] += moveRate;
+	// 	// }else if(nextY < newLine[index -2]){
+	// 	// 	newLine[index -2] -= moveRate;
+	// 	// }
+	// 	newLine[0] += snakeStroke;
+	// }
 
 	console.log(newLine);
 
